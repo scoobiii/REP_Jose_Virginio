@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolarChain - DAO Energética</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 24px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f59e0b, #eab308);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin: 4px 0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(248, 250, 252, 0.1);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .main-content {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .wallet-status {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f59e0b, #eab308);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #f59e0b;
+            margin-bottom: 8px;
+        }
+
+        .metric-unit {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(148, 163, 184, 0.1);
+            color: #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .wallet-selector {
+            margin: 12px 0;
+        }
+
+        .wallet-selector label {
+            display: block;
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .wallet-selector select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            background: rgba(15, 23, 42, 0.8);
+            color: #e2e8f0;
+            font-size: 12px;
+        }
+
+        .percentage-slider {
+            margin: 16px 0;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 8px 0;
+        }
+
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(148, 163, 184, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #10b981;
+            cursor: pointer;
+        }
+
+        .percentage-value {
+            font-size: 14px;
+            color: #10b981;
+            font-weight: 600;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0;
+            font-size: 12px;
+        }
+
+        .info-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .info-label {
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .energy-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .flow-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .flow-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .solar-icon { background: linear-gradient(135deg, #f59e0b, #eab308); }
+        .home-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .grid-icon { background: linear-gradient(135deg, #10b981, #059669); }
+
+        .flow-arrow {
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            position: relative;
+            animation: flowAnimation 2s linear infinite;
+        }
+
+        @keyframes flowAnimation {
+            0% { transform: translateX(-10px); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(10px); opacity: 0; }
+        }
+
+        .project-progress {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .progress-bar {
+            background: rgba(16, 185, 129, 0.2);
+            height: 6px;
+            border-radius: 3px;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            background: #10b981;
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: #e2e8f0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            min-width: 320px;
+            backdrop-filter: blur(20px);
+            border: 1px solid;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification.success { border-color: #10b981; }
+        .notification.error { border-color: #ef4444; }
+        .notification.warning { border-color: #f59e0b; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+        }
+
+        .trading-section {
+            grid-column: 1 / -1;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border-color: transparent;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">☀️</div>
+                <h2>SolarChain</h2>
+            </div>
+            
+            <nav>
+                <div class="nav-item active">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item">
+                    <span>💰</span>
+                    <span>Gestão Wallets</span>
+                </div>
+                <div class="nav-item">
+                    <span>📈</span>
+                    <span>Investidores</span>
+                </div>
+                <div class="nav-item">
+                    <span>🤝</span>
+                    <span>Destinação Social</span>
+                </div>
+                <div class="nav-item">
+                    <span>🪙</span>
+                    <span>Tokens SOLAR</span>
+                </div>
+                <div class="nav-item">
+                    <span>🏪</span>
+                    <span>Marketplace</span>
+                </div>
+                <div class="nav-item">
+                    <span>⚡</span>
+                    <span>Monitoramento</span>
+                </div>
+                <div class="nav-item">
+                    <span>🔗</span>
+                    <span>Blockchain</span>
+                </div>
+                <div class="nav-item">
+                    <span>⚙️</span>
+                    <span>Configurações</span>
+                </div>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>SolarChain - DAO Energética</h1>
+                <div class="wallet-status">
+                    <div class="status-dot"></div>
+                    <span>Kindelia Network</span>
+                    <span style="font-family: monospace; font-size: 12px; color: #94a3b8;">
+                        0x1234...89ab
+                    </span>
+                    <div style="margin-left: 16px; padding-left: 16px; border-left: 1px solid rgba(148, 163, 184, 0.2);">
+                        <span style="font-size: 12px; color: #10b981;">Block: 2,847,392</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Card: Gestão de Wallets & Excedentes -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Gestão de Wallets</div>
+                        <div class="card-icon">💰</div>
+                    </div>
+                    
+                    <div class="wallet-selector">
+                        <label>Wallet Origem (Excedente)</label>
+                        <select id="walletOrigem">
+                            <option value="0x1234...89ab">🏠 Residencial - 0x1234...89ab</option>
+                            <option value="0x5678...cdef">🏢 Comercial - 0x5678...cdef</option>
+                            <option value="0x9abc...1234">🏭 Industrial - 0x9abc...1234</option>
+                        </select>
+                    </div>
+                    
+                    <div class="wallet-selector">
+                        <label>Wallet Destino</label>
+                        <select id="walletDestino">
+                            <option value="0xaaaa...bbbb">⚡ SIN Nacional - 0xaaaa...bbbb</option>
+                            <option value="0xcccc...dddd">🏦 Pool Energético - 0xcccc...dddd</option>
+                            <option value="0xeeee...ffff">🤝 P2P Trading - 0xeeee...ffff</option>
+                        </select>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Excedente Atual</div>
+                            <div class="info-value" id="excedenteAtual">1.4 kW</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">SOLAR Gerados</div>
+                            <div class="info-value" id="tokensGerados">1,247</div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="transferirExcedente()">
+                            <span>⚡</span>
+                            Transferir
+                        </button>
+                        <button class="btn btn-secondary" onclick="abrirConfiguracao()">
+                            <span>⚙️</span>
+                            Config
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card: Captação de Investidores -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Captação de Investidores</div>
+                        <div class="card-icon">📈</div>
+                    </div>
+                    
+                    <div class="wallet-selector">
+                        <label>Wallet do Investidor</label>
+                        <select id="walletInvestidor">
+                            <option value="">Selecionar Investidor...</option>
+                            <option value="0x1111...2222">💼 Fundo Verde Capital</option>
+                            <option value="0x3333...4444">🏛️ BNDES Energia</option>
+                            <option value="0x5555...6666">🌿 ESG Impact Fund</option>
+                            <option value="0x7777...8888">👤 Investidor PF</option>
+                        </select>
+                    </div>
+                    
+                    <div class="tab-container">
+                        <div class="tab" id="tabNovo" onclick="selecionarTipoProjeto('novo')">
+                            <span>🆕</span> Novo Projeto
+                        </div>
+                        <div class="tab" id="tabExpansao" onclick="selecionarTipoProjeto('expansao')">
+                            <span>📈</span> Expansão
+                        </div>
+                    </div>
+                    
+                    <div class="project-progress">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="color: #10b981; font-weight: 600; font-size: 14px;">Meta: R$ 500.000</div>
+                                <div style="color: #94a3b8; font-size: 12px;">Captação de Recursos</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color: #10b981; font-weight: 700; font-size: 18px;" id="progressoPercentual">32%</div>
+                                <div style="color: #94a3b8; font-size: 12px;">Concluído</div>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressoFill" style="width: 32%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="lastrearEnergia()">
+                            <span>🔗</span>
+                            Lastrear Energia
+                        </button>
+                        <button class="btn btn-secondary" onclick="verDetalhes()">
+                            <span>📋</span>
+                            Detalhes
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card: Destinação Social -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Destinação Social</div>
+                        <div class="card-icon">🤝</div>
+                    </div>
+                    
+                    <div class="wallet-selector">
+                        <label>Instituição/Fundo Social</label>
+                        <select id="fundoSocial">
+                            <option value="">Selecionar Destinação...</option>
+                            <option value="0xaaaa...social">🏛️ Fundo Soberano Nacional</option>
+                            <option value="0xbbbb...escola">🏫 Projeto Escola Solar</option>
+                            <option value="0xcccc...saude">🏥 Hospitais Comunitários</option>
+                            <option value="0xdddd...ongs">🌱 ONGs Ambientais</option>
+                        </select>
+                    </div>
+                    
+                    <div class="percentage-slider">
+                        <label>Percentual de Destinação (1-5%)</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" min="1" max="5" value="2" id="percentualSocial" oninput="atualizarPercentual(this.value)">
+                            <div class="percentage-value" id="valorPercentual">2%</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 10px; color: #64748b; margin-top: 4px;">
+                            <span>1%</span>
+                            <span>3%</span>
+                            <span>5%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Valor Mensal Est.</div>
+                            <div class="info-value" id="valorMensalSocial">R$ 74,82</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Total Acumulado</div>
+                            <div class="info-value">R$ 1.347,80</div>
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 11px; color: #64748b; line-height: 1.4; margin: 12px 0; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
+                        💡 Destinação automatizada via smart contracts com transparência total.
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="ativarDestinacao()">
+                            <span>✅</span>
+                            Ativar
+                        </button>
+                        <button class="btn btn-secondary" onclick="verHistorico()">
+                            <span>📊</span>
+                            Histórico
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card: Monitoramento em Tempo Real -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Produção Atual</div>
+                        <div class="card-icon">⚡</div>
+                    </div>
+                    
+                    <div class="metric-value" id="producaoAtual">4.2 <span class="metric-unit">kW</span></div>
+                    
+                    <div class="energy-flow">
+                        <div class="flow-node">
+                            <div class="flow-icon solar-icon">☀️</div>
+                            <span style="font-size: 11px; color: #94a3b8;">Painel</span>
+                        </div>
+                        <div class="flow-arrow"></div>
+                        <div class="flow-node">
+                            <div class="flow-icon home-icon">🏠</div>
+                            <span style="font-size: 11px; color: #94a3b8;">Casa</span>
+                        </div>
+                        <div class="flow-arrow"></div>
+                        <div class="flow-node">
+                            <div class="flow-icon grid-icon">⚡</div>
+                            <span style="font-size: 11px; color: #94a3b8;">SIN</span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Consumo</div>
+                            <div class="info-value" id="consumoAtual">2.8 kW</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Eficiência</div>
+                            <div class="info-value" style="color: #10b981;">87%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Status Blockchain -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Blockchain Status</div>
+                        <div class="card-icon">⛓️</div>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Último Bloco</div>
+                            <div class="info-value" style="color: #3b82f6;" id="ultimoBloco">#2,847,392</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">HVM Threads</div>
+                            <div class="info-value" style="color: #8b5cf6;" id="threadsAtivas">32,768</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Operações/s</div>
+                            <div class="info-value" style="color: #f59e0b;" id="operacoesPorSegundo">2.4M</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Latência</div>
+                            <div class="info-value" style="color: #10b981;">0.3ms</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px; border-radius: 8px; font-size: 12px; margin-top: 16px;">
+                        ✅ HVM Runtime Ativo - Processamento Paralelo
+                        <div style="margin-top: 4px; font-size: 10px; opacity: 0.9;">
+                            Kindelia: Pure Functions | Bend: GPU Acceleration
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: DAO Energética Marketplace -->
+                <div class="card trading-section">
+                    <div class="card-header">
+                        <div class="card-title">DAO Energética - Marketplace</div>
+                        <div class="card-icon">🌐</div>
+                    </div>
+                    
+                    <div class="tab-container">
+                        <div class="tab active">💰 Wallet SOLAR</div>
+                        <div class="tab">📊 Trading P2P</div>
+                        <div class="tab">🏪 Marketplace</div>
+                        <div class="tab">📈 Analytics</div>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 20px; border-radius: 12px; margin: 16px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700;">1,247 SOLAR</div>
+                                <div style="font-size: 14px; opacity: 0.9;">≈ R$ 3,741.00 | Excedente: 1.4kW</div>
+                            </div>
+                            <div style="font-size: 32px;">🪙</div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Kindelia Address</div>
+                            <div class="info-value" style="font-family: monospace; font-size: 10px;">0x1234...89ab</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Status DAO</div>
+                            <div class="info-value" style="color: #10b981;">Ativo</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
